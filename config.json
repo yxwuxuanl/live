@@ -1,5 +1,0 @@
-{
-    "backendPort" : 8082,
-    "frontendPort" : 8081,
-    "backendWsHost" : "ws://119.23.56.237"
-}

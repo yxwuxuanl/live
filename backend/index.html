@@ -35,8 +35,10 @@
             <i-col span="10" offset="7">
                 <Upload action="./uploadAsset.php" 
                     name="asset" 
-                    :before-uplpad="beforeUpload"
+                    :before-uplpad="beforeAssetUpload"
                     :on-success="uploadAssetSuccess"
+                    :on-remove="removeAsset"
+                    :on-error="uploadAssetFail"
                     ref="upload"
                     max-size="10240">
                     <icon type="camera" size="50"></icon>
@@ -44,7 +46,13 @@
             </i-col>
 
             <i-col span="12" offset="6">
-                <i-button long type="primary" :disabled="!socketReady || uploading || pushing || (!('type' in asset) && !text)" @click="upload">{{pushing ? '推送中' : '发布'}}</i-button>
+                <i-button long 
+                        type="primary" 
+                        :disabled="!socketReady || uploading || pushing || (!('type' in asset) && !text) || hasError" 
+                        @click="post">
+                    <span v-if="pushing">正在推送...</span>
+                    <span v-else>发布</span>
+                </i-button>
             </i-col>
         </row>
     </div>

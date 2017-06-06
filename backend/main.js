@@ -1,112 +1,96 @@
 var
-    vm;
-
-vm = new Vue({
-    el : '#app',
-
-    data : {
-        port : '',
-        socketReady : false,
-        uploading : false,
-        asset : {},
-        text : '',
-        pushing : false
-    },
-
-    created : function(){
-        var
-            vm = this;
-
-        axios.get('../config.json').then(function(response){
-            vm.initSocket(response.data.backendWsHost, response.data.backendPort);
-        });
-
-    },
-
-    methods : {
-        initSocket : function(host, port){
+    vm = new Vue({
+        el : '#app',
+        data : {
+            socketReady : false,
+            uploading : false,
+            pushing : false,
+            asset : {},
+            text : '',
+            hasError : false
+        },
+        
+        created : function(){
             var
-                socket = new WebSocket(host + ':' + port),
+                // socket = new WebSocket('ws://127.0.0.1:8082'),
+                socket = new WebSocket('ws://119.23.56.237:8082'),
                 vm = this;
 
+            this.$socket = socket;
+
+            setTimeout(function(){
+                if(!vm.socketReady)
+                {
+                    vm.$Message.error('Socket初始化失败');
+                }
+            }, 5000);
+
             socket.onopen = function(){
-                vm.$soctek = socket;
                 vm.socketReady = true;
+                vm.$Message.info('Socket初始化成功');
             }
 
             socket.onmessage = function(event){
-                var
-                    data = JSON.parse(event.data);
 
-                if(data.confirm){
-                    vm.pushFinish();
+            }
+        },
+
+        methods : {
+            uploadAssetSuccess : function(response){
+                if(response.status === 'success'){
+                    this.$Message.success('资源上传成功!');
+                    delete response.status;
+                    this.asset = response;
+                }else{
+                    this.uploadAssetFail();
                 }
-            }
-        },
-        
-        upload : function(){
-            var
-                vm = this;
+            },
 
-            if(this.text){
-                axios.post('./uploadText.php', 'text=' + this.text).then(function(response){
-                    vm.push(response.data);
-                });
-            }else{
-                vm.push();
-            }
-        },
-
-        push : function(text){
-            var
-                date = new Date(),
-                time = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds(),
-                asset = {},
-                vm = this;
-
-            asset.time = time;
-            asset.content = [];
-
-            if(text){
-                asset.content.push(text);
-            }
-
-            if('type' in this.asset){
-                asset.content.push(this.asset);
-            }
-
-            this.$soctek.send(JSON.stringify(asset));
-            this.pushing = true;
-        },
-
-        pushFinish : function(){
-            this.$Message.success('发布完成!');
-            this.reset();
-        },
-
-        uploadAssetSuccess : function(response){
-            this.uploading = false;
-
-            if(response.status === 'success')
-            {
-                this.asset = response;
-            }else{
+            uploadAssetFail : function(){
+                this.hasError = true;
                 this.$Message.error({
-                    content : '上传失败,请刷新',
+                    content : '资源上传失败',
                     duration : 0
-                });
+                });  
+            },
+
+            beforeAssetUpload : function(){
+                this.uploading = true;
+            },
+
+            removeAsset : function(){
+                this.asset = {};
+            },
+
+            post : function(){
+                var
+                    vm = this;
+
+                if(this.text){
+
+                    axios.get('./uploadText.php?content=' + this.text).then(function(response){
+                        if(response.data.status === 'success')
+                        {
+                            delete response.data.status;
+                            vm.push(response.data);
+                        }else{
+                            return Promise.reject();
+                        }
+                    }).catch(function(){
+
+                        vm.hasError = true;
+
+                        vm.$Message.error({
+                            content : '资源上传失败',
+                            duration : 0
+                        });
+                    });
+
+                }
+            },
+
+            push : function(textAsset){
+
             }
-        },
-
-        beforeUpload : function(){
-            this.uploading = true;
-        },
-
-        reset : function(){
-            this.text = '';
-            this.asset = {};
-            this.$refs.upload.clearFiles();
-            this.pushing = false;
         }
-    }
-});
+    })

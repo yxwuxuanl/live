@@ -1,6 +1,6 @@
 <?php
 
-include './oss.php';
+include __DIR__ . '/oss.php';
 
 $file = $_FILES['asset'];
 
@@ -13,7 +13,7 @@ $name = "{$id}.{$ext}";
 try
 {
     $oss->uploadFile($bucket, $name, $file['tmp_name']);
-    echo json_encode(['status' => 'fail', 'type' => $type, 'name' => $name]);
+    echo json_encode(['status' => 'success', 'type' => $type, 'name' => $name]);
 }catch(Exception $e){
     echo json_encode(['status' => 'fail']);
 }
