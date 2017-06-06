@@ -12,8 +12,8 @@ var
         
         created : function(){
             var
-                // socket = new WebSocket('ws://127.0.0.1:8082'),
-                socket = new WebSocket('ws://119.23.56.237:8082'),
+                socket = new WebSocket('ws://127.0.0.1:8082'),
+                // socket = new WebSocket('ws://119.23.56.237:8082'),
                 vm = this;
 
             this.$socket = socket;
@@ -67,7 +67,6 @@ var
                     vm = this;
 
                 if(this.text){
-
                     axios.get('./uploadText.php?content=' + this.text).then(function(response){
                         if(response.data.status === 'success')
                         {
@@ -85,12 +84,25 @@ var
                             duration : 0
                         });
                     });
-
+                }else{
+                    this.push();
                 }
             },
 
             push : function(textAsset){
+                var
+                    assets = [];
+                
+                if(textAsset){
+                    assets.push(textAsset);
+                }
 
+                if(this.asset){
+                    assets.push(this.asset);
+                }
+
+                this.pushing = true;
+                this.$socket.send(JSON.stringify(assets));
             }
         }
     })

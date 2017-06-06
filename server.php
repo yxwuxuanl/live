@@ -21,7 +21,7 @@ $swoole->on('open', function($swoole, $request){
 });
 
 $swoole->on('message', function($swoole, $request){
-
+    echo $request->data;
 });
 
 $swoole->on('close', function($swoole, $fd){

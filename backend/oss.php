@@ -7,4 +7,4 @@ $access_key = 'aFcCHs23099fqNnYkmamUx2UbWDwKb';
 $endpoint = 'oss-cn-shenzhen.aliyuncs.com';
 $bucket = 'hztilive';
 
-$oss = new Oss\OssClient($access_id, $access_key, $endpoint, FALSE);
+$oss = new OSS\OssClient($access_id, $access_key, $endpoint, FALSE);
